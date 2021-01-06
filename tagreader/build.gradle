@@ -1,0 +1,43 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    // Jetbrains annotations
+    implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+
+    // ID3
+    implementation "com.mpatric:mp3agic:$mp3agicVersion"
+}
+
+java {
+    sourceSets {
+        main {
+            java.srcDirs += 'src/main/kotlin/'
+            test.java.srcDirs += 'src/test/kotlin'
+        }
+    }
+    sourceCompatibility = sourceCompatibilityVersion
+    targetCompatibility = sourceCompatibilityVersion
+}
+
+jar {
+    manifest {
+        attributes(
+                'Manifest-Version': 0.1,
+                'Main-Class': 'net.maxsmr.tagreader.TagReaderKt',
+                'DEBUG': false
+        )
+    }
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "$jvmVersion"
+        freeCompilerArgs = ["$jvmDefaultArg"]
+    }
+}

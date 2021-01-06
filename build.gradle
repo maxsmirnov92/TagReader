@@ -1,0 +1,36 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+
+    ext {
+        jvmVersion = "1.8"
+        jvmDefaultArg = "-Xjvm-default=compatibility"
+        sourceCompatibilityVersion = JavaVersion.VERSION_1_8
+        jetbrainsAnnotationsVersion = '13.0'
+        gradlePluginVersion = '4.0.1'
+        kotlinVersion = '1.4.21'
+        kotlinGradlePluginVersion = kotlinVersion
+
+        // ID3
+        mp3agicVersion = "0.9.1"
+    }
+    
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$gradlePluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinGradlePluginVersion"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
