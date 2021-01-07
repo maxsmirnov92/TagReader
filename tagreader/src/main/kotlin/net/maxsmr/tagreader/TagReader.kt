@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    val argsNames = arrayOf("-rootDir", "-isRecursive", "-targetTextDir", "-targetTextFile", "-append", "-header")
+    val argsNames = arrayOf("-rootDir", "-recursive", "-targetDir", "-targetFile", "-append", "-header")
 
     val argsParser = ArgsParser(*argsNames)
     argsParser.setArgs(*args)
@@ -30,9 +30,9 @@ fun main(args: Array<String>) {
         File(it)
     }
 
-    val isRecursive = argsParser.findPairArg(1, true)?.toBoolean() ?: false
+    val recursive = argsParser.containsArg(1, true)
 
-    val append = argsParser.findPairArg(4, true)?.toBoolean() ?: false
+    val append = argsParser.containsArg(4, true)
     val targetTextFile = createFileOrThrow(argsParser.findPairArg(3, true), argsParser.findPairArg(2, true), !append)
 
     val header = argsParser.findPairArg(5, true)
@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
     val files = getFiles(
             rootDir,
             GetMode.FILES,
-            depth = if (isRecursive) DEPTH_UNLIMITED else 1
+            depth = if (recursive) DEPTH_UNLIMITED else 1
     ).filter {
         EXT_MP3.equals(getFileExtension(it), true)
     }
