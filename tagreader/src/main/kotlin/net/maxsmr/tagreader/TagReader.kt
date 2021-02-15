@@ -3,6 +3,7 @@ package net.maxsmr.tagreader
 import com.mpatric.mp3agic.Mp3File
 import net.maxsmr.commonutils.data.*
 import net.maxsmr.commonutils.data.text.EMPTY_STRING
+import net.maxsmr.commonutils.data.text.TrimDirection
 import net.maxsmr.commonutils.data.text.trimWithCondition
 import net.maxsmr.commonutils.logger.BaseLogger
 import net.maxsmr.commonutils.logger.SimpleSystemLogger
@@ -11,7 +12,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 private const val EXT_MP3 = "mp3"
-private const val PATTERN_TAG_FORMAT = "%s\t%s\t%s\t%d\t%d\tL\t%d\t"
+private const val PATTERN_TAG_FORMAT = "%s\t%s\t%s\t%s\t%d\tL\t%d\t"
 
 private val argsNames = arrayOf("-rootDir", "-recursive", "-targetDir", "-targetFile", "-append", "-header", "-log")
 
@@ -20,7 +21,7 @@ fun main(args: Array<String>) {
     fun CharSequence?.trimEndSeparator() = this?.let {
         trimWithCondition(
                 it,
-                false,
+                TrimDirection.END,
                 File.separatorChar,
                 CompareCondition.EQUAL
         ).toString()
@@ -69,6 +70,7 @@ fun main(args: Array<String>) {
         writeStringsToFileOrThrow(targetTextFile, listOf(header.replace("\\n", System.lineSeparator())), false)
     }
 
+    logger.i("Scanning files in '$rootDir'...")
     val files = getFiles(
             rootDir,
             GetMode.FILES,
@@ -110,12 +112,12 @@ fun main(args: Array<String>) {
             }
         }
 
-        var trackNumber: Int? = null
+        var trackNumber: String? = null
 
         mergedTrackNumber?.let {
             val parts = mergedTrackNumber.split("/")
             if (parts.isNotEmpty()) {
-                trackNumber = parts[0].toIntOrNull()
+                trackNumber = parts[0]
             }
         }
 
