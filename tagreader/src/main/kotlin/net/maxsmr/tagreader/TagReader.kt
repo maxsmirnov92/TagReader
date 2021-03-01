@@ -1,13 +1,12 @@
 package net.maxsmr.tagreader
 
 import com.mpatric.mp3agic.Mp3File
-import net.maxsmr.commonutils.data.*
-import net.maxsmr.commonutils.data.text.EMPTY_STRING
-import net.maxsmr.commonutils.data.text.TrimDirection
-import net.maxsmr.commonutils.data.text.trimWithCondition
+import net.maxsmr.commonutils.*
 import net.maxsmr.commonutils.logger.BaseLogger
 import net.maxsmr.commonutils.logger.SimpleSystemLogger
 import net.maxsmr.commonutils.logger.holder.BaseLoggerHolder
+import net.maxsmr.commonutils.text.*
+
 import java.io.File
 import java.util.concurrent.TimeUnit
 
