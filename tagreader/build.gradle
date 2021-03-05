@@ -1,6 +1,8 @@
 apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
+version = "0.1b"
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -27,7 +29,7 @@ java {
 jar {
     manifest {
         attributes(
-                'Manifest-Version': 0.1,
+                'Manifest-Version': 1.0,
                 'Main-Class': 'net.maxsmr.tagreader.TagReaderKt',
                 'DEBUG': false
         )
