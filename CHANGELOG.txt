@@ -1,3 +1,0 @@
-* Thu Jan 07 2021 Maxim Smirnov <max.smirnov92@yandex.ru> 0.1
-
-first public release

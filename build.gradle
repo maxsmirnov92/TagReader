@@ -7,8 +7,8 @@ buildscript {
         jvmDefaultArg = "-Xjvm-default=compatibility"
         sourceCompatibilityVersion = JavaVersion.VERSION_1_8
         jetbrainsAnnotationsVersion = '13.0'
-        gradlePluginVersion = '4.0.1'
-        kotlinVersion = '1.4.21'
+        gradlePluginVersion = '4.1.2'
+        kotlinVersion = '1.4.32'
         kotlinGradlePluginVersion = kotlinVersion
 
         // ID3

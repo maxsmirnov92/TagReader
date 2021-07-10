@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit
 private const val EXT_MP3 = "mp3"
 private const val PATTERN_TAG_FORMAT = "%s\t%s\t%s\t%s\t%d\tL\t%d\t"
 
-private val argsNames = arrayOf("-rootDir", "-recursive", "-targetDir", "-targetFile", "-append", "-header", "-log")
-
 fun main(args: Array<String>) {
 
+    // trim не пригодится, т.к. при наличии "\" (виндовый сепаратор) на конце какой-либо подстроки (в т.ч. в кавычках)
+    // массив args уже будет кривой
     fun CharSequence?.trimEndSeparator() = this?.let {
         trimWithCondition(
                 it,
@@ -26,13 +26,12 @@ fun main(args: Array<String>) {
         ).toString()
     } ?: EMPTY_STRING
 
-    val argsParser = ArgsParser(*argsNames)
-    argsParser.setArgs(*args)
+    val argsParser = ArgsParser(args.toList())
 
-    val isLoggingEnabled = argsParser.containsArg(6, true)
+    val isLoggingEnabled = argsParser.containsArg("-log")
 
     BaseLoggerHolder.initInstance {
-        object : BaseLoggerHolder(true) {
+        object : BaseLoggerHolder() {
             override fun createLogger(className: String): BaseLogger? {
                 return if (isLoggingEnabled) {
                     SimpleSystemLogger(className)
@@ -43,22 +42,23 @@ fun main(args: Array<String>) {
         }
     }
 
-    val logger = BaseLoggerHolder.getInstance().getLogger<BaseLogger>("TagReader")
+    val logger = BaseLoggerHolder.instance.getLogger<BaseLogger>("TagReader")
 
+    logger.d("Main args is: ${argsParser.args}")
 
-    val rootDir = argsParser.findPairArg(0, true)?.let {
+    val rootDir = argsParser.findAssociatedArgByName("-rootDir")?.let {
         File(it.trimEndSeparator())
     }
 
-    val recursive = argsParser.containsArg(1, true)
+    val recursive = argsParser.containsArg("-recursive")
 
-    val append = argsParser.containsArg(4, true)
+    val append = argsParser.containsArg("-append")
     val targetTextFile = createFileOrThrow(
-            argsParser.findPairArg(3, true).trimEndSeparator(),
-            argsParser.findPairArg(2, true).trimEndSeparator(),
+            argsParser.findAssociatedArgByName("-targetFile").trimEndSeparator(),
+            argsParser.findAssociatedArgByName("-targetDir").trimEndSeparator(),
             !append)
 
-    val header = argsParser.findPairArg(5, true)
+    val header = argsParser.findAssociatedArgByName("-header")
 
     if (!isDirExistsOrThrow(rootDir)) {
         throw RuntimeException("Dir '$rootDir' not exists")
@@ -75,14 +75,16 @@ fun main(args: Array<String>) {
             GetMode.FILES,
             depth = if (recursive) DEPTH_UNLIMITED else 1
     ).filter {
-        EXT_MP3.equals(getFileExtension(it), true)
+        EXT_MP3.equals(it.extension, true)
     }
 
-    val currentTimestamp = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+    var currentTimestampMs = argsParser.findAssociatedArgByName("-initialTimestamp")
+            ?.toLongOrNull()?.takeIf { it > 0 }
+            ?: System.currentTimeMillis()
+    logger.i("Initial timestamp is $currentTimestampMs ms")
 
-    files.forEach loop@ {
-        logger.i("")
-        logger.i("Scanning file '$it'...")
+    files.forEach loop@{
+        logger.i("\nScanning file '$it'...")
 
         val mp3File = Mp3File(it)
 
@@ -126,8 +128,14 @@ fun main(args: Array<String>) {
                 title ?: EMPTY_STRING,
                 trackNumber ?: EMPTY_STRING,
                 duration,
-                currentTimestamp
+                TimeUnit.MILLISECONDS.toSeconds(currentTimestampMs)
         )
         writeStringsToFileOrThrow(targetTextFile, listOf(scrobblerString), true)
+
+        val trackDuration = mp3File.lengthInMilliseconds.takeIf { length -> length > 0 } ?: 1
+        logger.i("Track duration: $trackDuration ms")
+        currentTimestampMs += trackDuration
     }
+
+    logger.i("Last timestamp is: $currentTimestampMs ms")
 }
